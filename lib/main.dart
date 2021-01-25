@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_uber/AllScreens/login_screen.dart';
+import 'package:flutter_uber/AllScreens/registration_screen.dart';
 
 import 'AllScreens/main_screen.dart';
 
@@ -18,8 +19,13 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: LoginScreen(),
-      debugShowCheckedModeBanner: false,       //falseにするとdebugモードバナーが消える
+      initialRoute: LoginScreen.idScreen,     //初期画面の設定
+      routes: {
+        RegistrationScreen.idScreen:(context) => RegistrationScreen(),          //RegistrationScreenのIdScreen変数が指定されたらRegistrationScreenへ移動
+        LoginScreen.idScreen:(context) => LoginScreen(),
+        MainScreen.idScreen:(context) => MainScreen(),
+      },
+      debugShowCheckedModeBanner: false,                                        //falseにするとdebugモードバナーが消える
     );
   }
 }
