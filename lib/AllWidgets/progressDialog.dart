@@ -1,0 +1,35 @@
+import 'package:flutter/material.dart';
+
+
+class ProgressDialog extends StatelessWidget {
+
+  String message;                                                               //メッセージ代入
+  ProgressDialog({this.message});                                               //メソッドを呼び出すときメッセージを入れないといけない
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(                                                              //DialogなのでDialogでリターン
+      backgroundColor: Colors.yellow,
+      child: Container(
+        margin: EdgeInsets.all(15.0),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(6.0),
+        ),
+        child: Padding(
+          padding:EdgeInsets.all(15.0),
+          child: Row(
+            children: [
+              SizedBox(width: 6.0,),
+              CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.black),),//ぐるぐる回るアニメーション
+              SizedBox(width: 26.0,),
+              Text(message,style: TextStyle(color: Colors.black),)
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

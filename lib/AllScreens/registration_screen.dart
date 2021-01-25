@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_uber/AllScreens/login_screen.dart';
+import 'package:flutter_uber/AllWidgets/progressDialog.dart';
 import 'package:flutter_uber/main.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -164,6 +165,13 @@ class RegistrationScreen extends StatelessWidget {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance; //firebaseのインスタンスを宣言
   registerNewUser(BuildContext context) async {
     //firebaseを利用し認証する
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context){
+          return ProgressDialog(message: "作成中。。。。",);
+        }
+    );
     final User firebaseUser = (await _firebaseAuth
             .createUserWithEmailAndPassword(
                 email: _emailTextEditingController.text,

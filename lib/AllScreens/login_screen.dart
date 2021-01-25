@@ -1,9 +1,18 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_uber/AllScreens/main_screen.dart';
 import 'package:flutter_uber/AllScreens/registration_screen.dart';
+import 'package:flutter_uber/AllWidgets/progressDialog.dart';
+import 'package:flutter_uber/main.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String idScreen = "login"; //login 변수
+  TextEditingController _emailTextEditingController = TextEditingController();
+  TextEditingController _passwordTextEditingController =
+      TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,6 +42,7 @@ class LoginScreen extends StatelessWidget {
                 children: [
                   SizedBox(height: 1.0),
                   TextField(
+                    controller: _emailTextEditingController,
                     //TextFieldウィジェットはデータを打ち込めるField
                     keyboardType: TextInputType.emailAddress,
                     //＠の含まれてるキーボードが出てくる
@@ -47,8 +57,11 @@ class LoginScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 1.0),
                   TextField(
-                    obscureText: true, //テキストを隠す
-                    keyboardType: TextInputType.text, //TextでInputしobscureで隠す
+                    controller: _passwordTextEditingController,
+                    obscureText: true,
+                    //テキストを隠す
+                    keyboardType: TextInputType.text,
+                    //TextでInputしobscureで隠す
                     decoration: InputDecoration(
                       labelText: "Password",
                       labelStyle: TextStyle(
@@ -61,8 +74,13 @@ class LoginScreen extends StatelessWidget {
                   SizedBox(height: 20.0),
                   RaisedButton(
                     onPressed: () {
-                      RegistrationScreen regi = new RegistrationScreen();
-                      regi.displayToastMessage("눌렀습니다", context);
+                      if (!_emailTextEditingController.text.contains("@")) {
+                        regi.displayToastMessage("Emailでログインしてください。", context);
+                      } else if (_passwordTextEditingController.text.isEmpty) {
+                        regi.displayToastMessage("パスワードは必須項目です。", context);
+                      } else {
+                        loginAndAuthenticateUser(context);
+                      }
                     },
                     textColor: Colors.white,
                     color: Colors.yellow,
@@ -98,5 +116,49 @@ class LoginScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  RegistrationScreen regi = RegistrationScreen();
+
+  void loginAndAuthenticateUser(BuildContext context) async {//ログインメソッドを作成
+      //LoginScreen.Dartです。
+    showDialog(                                                                //Login時認証を行うメソッドの頭に書き込み
+      context: context,                                                         //ShowDialogはDialogを見せてくれる
+      barrierDismissible: false,
+      builder: (BuildContext context){
+        return ProgressDialog(message: "認証中です。",);                        //Messageにぐるぐると出力したいMessageを書き込み
+      }
+    );
+    final User firebase = (await _firebaseAuth //Userが入力さるれまで待機（await)
+            .signInWithEmailAndPassword(
+                //作成の時はCreate、Signの時はsignInWithEmailAndPasswordでEmail、Passwordを認証する
+                email: _emailTextEditingController.text,
+                password: _passwordTextEditingController.text)
+            .catchError((errMsg) {
+      Navigator.pop(context);
+      regi.displayToastMessage("Error ${errMsg.toString()}", context);
+    }))
+        .user;
+
+    if (firebase != null) {
+      //入力されたUserがあれば
+      userRef.child(firebase.uid).once().then((DataSnapshot snap) {
+        //UserRef(firebaseDatabase)を一回DataSnapshotで照会
+        if (snap.value != null) {
+          //SanpValueが存在すれば次のPageへ移動
+          Navigator.pushNamedAndRemoveUntil(
+              context, MainScreen.idScreen, (route) => false); //
+          regi.displayToastMessage("ログインに成功しました", context);
+        } else {
+          Navigator.pop(context);
+          _firebaseAuth.signOut();
+          regi.displayToastMessage("アカウントが存在しません。", context);
+        }
+      });
+    } else {
+      Navigator.pop(context);
+      regi.displayToastMessage("ログインすることができません。", context);
+    }
   }
 }
