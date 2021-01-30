@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: LoginScreen.idScreen,     //初期画面の設定
+      initialRoute: MainScreen.idScreen,     //初期画面の設定
       routes: {
         RegistrationScreen.idScreen:(context) => RegistrationScreen(),          //RegistrationScreenのIdScreen変数が指定されたらRegistrationScreenへ移動
         LoginScreen.idScreen:(context) => LoginScreen(),
